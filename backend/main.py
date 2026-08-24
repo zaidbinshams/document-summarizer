@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import pytesseract
 
 from services.pdf_extractor import extract_pdf_text
 from services.ocr import extract_image_text
@@ -46,6 +47,23 @@ def health():
         "status": "ok"
     }
 
+@app.get("/ocr-health")
+def ocr_health():
+    try:
+        version = str(pytesseract.get_tesseract_version())
+
+        return {
+            "status": "ok",
+            "tesseract": version,
+            "command": pytesseract.pytesseract.tesseract_cmd,
+        }
+
+    except Exception as error:
+        return {
+            "status": "error",
+            "error": str(error),
+            "command": pytesseract.pytesseract.tesseract_cmd,
+        }
 
 @app.post("/api/extract")
 async def extract_text(file: UploadFile = File(...)):
