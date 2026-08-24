@@ -47,24 +47,6 @@ def health():
         "status": "ok"
     }
 
-@app.get("/ocr-health")
-def ocr_health():
-    try:
-        version = str(pytesseract.get_tesseract_version())
-
-        return {
-            "status": "ok",
-            "tesseract": version,
-            "command": pytesseract.pytesseract.tesseract_cmd,
-        }
-
-    except Exception as error:
-        return {
-            "status": "error",
-            "error": str(error),
-            "command": pytesseract.pytesseract.tesseract_cmd,
-        }
-
 @app.post("/api/extract")
 async def extract_text(file: UploadFile = File(...)):
     if not file.filename:
@@ -143,9 +125,8 @@ async def summarize_document(request: SummaryRequest):
 
         return result
 
-    except Exception as error:
-        print("EXTRACTION ERROR:", repr(error))
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail="Unable to extract text from this document."
         )
