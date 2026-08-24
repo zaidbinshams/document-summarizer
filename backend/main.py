@@ -125,8 +125,9 @@ async def summarize_document(request: SummaryRequest):
 
         return result
 
-    except Exception:
+    except Exception as error:
+        print("EXTRACTION ERROR:", repr(error))
         raise HTTPException(
             status_code=500,
-            detail="Unable to generate the summary. Please try again."
+            detail=str(error)
         )
