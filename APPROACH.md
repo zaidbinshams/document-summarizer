@@ -1,0 +1,7 @@
+This project is a full-stack web application designed to extract and summarize content from PDF and image-based documents. The frontend was developed using React and Vite, providing a simple responsive interface with drag-and-drop and file-picker support, along with selectable summary lengths.
+
+A Python FastAPI backend handles document processing. For standard PDFs, PyMuPDF is used to extract text directly. For images and scanned PDFs without extractable text, Tesseract OCR is used to recognize and extract the content. The extracted text is then passed to the Gemini API, which generates a summary based on the selected length and identifies the key points of the document.
+
+The application includes file-type and size validation, loading states, and basic error handling. The backend is containerized with Docker so that OCR dependencies are available consistently in production. The backend is deployed on Render, while the React frontend is hosted using Cloudflare Pages. Environment variables are used for API configuration and sensitive credentials are excluded from the repository.
+
+The solution focuses on keeping the architecture lightweight while satisfying the core functional requirements of document upload, text extraction, OCR, AI summarization, and responsive presentation.

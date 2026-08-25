@@ -2,6 +2,10 @@
 
 An AI-powered web application that accepts PDF and image documents, extracts their text using PDF parsing or OCR, and generates concise summaries with key points.
 
+## Approach
+
+See [APPROACH.md](APPROACH.md) for the brief project approach and implementation details.
+
 ## Features
 
 - Upload PDF and image files
