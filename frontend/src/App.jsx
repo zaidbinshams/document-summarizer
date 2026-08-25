@@ -9,6 +9,8 @@ function App() {
   const [summaryLength, setSummaryLength] = useState("medium");
   const [result, setResult] = useState(null);
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const handleFile = (selectedFile) => {
     if (!selectedFile) return;
 
@@ -50,7 +52,7 @@ function App() {
       formData.append("file", file);
 
       const extractResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/extract`,
+        `${apiUrl}/api/extract`,
         {
           method: "POST",
           body: formData,
@@ -66,7 +68,7 @@ function App() {
       }
 
       const summarizeResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/summarize`,
+        `${apiUrl}/api/summarize`,
         {
           method: "POST",
           headers: {
@@ -90,7 +92,7 @@ function App() {
       setResult(summaryData);
       setMessage(`Successfully processed ${file.name}`);
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -99,97 +101,114 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <div className="header">
+        <header className="header">
           <h1>Document Summary Assistant</h1>
 
           <p className="subtitle">
             Upload a PDF or image and generate an AI-powered summary.
           </p>
-        </div>
+        </header>
 
-        <div className="card">
-          <div
-            className={`upload-box ${dragging ? "dragging" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={handleDrop}
-          >
-            <p>Drag & drop your document here</p>
-            <span>or</span>
+        <main>
+          <div className="card">
+            <div
+              className={`upload-box ${dragging ? "dragging" : ""}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+            >
+              <p>Drag & drop your document here</p>
+              <span>or</span>
 
-            <label className="browse-button">
-              Browse Files
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={(e) => handleFile(e.target.files[0])}
-                hidden
-              />
-            </label>
+              <label className="browse-button">
+                Browse Files
+
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={(e) => handleFile(e.target.files[0])}
+                  hidden
+                />
+              </label>
+            </div>
+
+            {file && (
+              <div className="file-info">
+                <strong>Selected file:</strong> {file.name}
+              </div>
+            )}
+
+            <div className="summary-options">
+              <h3>Summary Length</h3>
+
+              <div className="length-buttons">
+                {["short", "medium", "long"].map((length) => (
+                  <button
+                    key={length}
+                    className={
+                      summaryLength === length ? "active" : ""
+                    }
+                    onClick={() => setSummaryLength(length)}
+                    disabled={loading}
+                  >
+                    {length.charAt(0).toUpperCase() + length.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              className="summarize-button"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="loading">
+                  <span className="spinner"></span>
+                  Analyzing document...
+                </span>
+              ) : (
+                "Generate Summary"
+              )}
+            </button>
+
+            {message && <p className="message">{message}</p>}
           </div>
 
-          {file && (
-            <div className="file-info">
-              <strong>Selected file:</strong> {file.name}
+          {result && (
+            <div className="results">
+              <section className="result-card">
+                <h2>Summary</h2>
+                <p>{result.summary}</p>
+              </section>
+
+              <section className="result-card">
+                <h2>Key Points</h2>
+
+                <ul>
+                  {result.key_points.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+              </section>
             </div>
           )}
+        </main>
 
-          <div className="summary-options">
-            <h3>Summary Length</h3>
+        <footer className="footer">
+          <span>Document Summary Assistant</span>
 
-            <div className="length-buttons">
-              {["short", "medium", "long"].map((length) => (
-                <button
-                  key={length}
-                  className={summaryLength === length ? "active" : ""}
-                  onClick={() => setSummaryLength(length)}
-                  disabled={loading}
-                >
-                  {length.charAt(0).toUpperCase() + length.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            className="summarize-button"
-            onClick={handleSubmit}
-            disabled={loading}
+          <a
+            href="https://github.com/zaidbinshams/document-summarizer"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {loading ? (
-              <span className="loading">
-                <span className="spinner"></span>
-                Analyzing document...
-              </span>
-            ) : (
-              "Generate Summary"
-            )}
-          </button>
-
-          {message && <p className="message">{message}</p>}
-        </div>
-
-        {result && (
-          <div className="results">
-            <section className="result-card">
-              <h2>Summary</h2>
-              <p>{result.summary}</p>
-            </section>
-
-            <section className="result-card">
-              <h2>Key Points</h2>
-
-              <ul>
-                {result.key_points.map((point, index) => (
-                  <li key={index}>{point}</li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        )}
+            View on GitHub
+          </a>
+        </footer>
       </div>
     </div>
   );
